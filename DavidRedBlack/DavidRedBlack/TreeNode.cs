@@ -30,18 +30,22 @@ namespace DavidRedBlack
                 return temp;
             }
         }
-
-        public NodeColor color;
+        public NodeColor Color;
+        
         public int Height;
         public T Item;
         public TreeNode<T> LeftNode;
         public TreeNode<T> RightNode;
         public TreeNode<T> Parent;
 
+        public TreeNode() { }
         public TreeNode(T item)
         {
             Item = item;
             Height = 1;
+            Color = NodeColor.Red;
+            LeftNode = new NullNode<T>(this);
+            RightNode = new NullNode<T>(this);
         }
 
         public void SetChild(TreeNode<T> newChild)
@@ -52,6 +56,38 @@ namespace DavidRedBlack
                 return;
             }
             RightNode = newChild;
+        }
+        
+        public void MoveBlacknessDown()
+        {
+            LeftNode.Color = NodeColor.Black;
+            RightNode.Color = NodeColor.Black;
+            Color = NodeColor.Red;
+        }
+
+        public TreeNode<T> GetSibling(TreeNode<T> child)
+        { 
+            if(child == LeftNode)
+            {
+                return RightNode;
+            }
+            return LeftNode;
+        }
+
+        public TreeNode<T> Uncle
+        {
+            get
+            {
+                return Parent.GetSibling(this);
+            }
+        }
+
+        public TreeNode<T> Grandparent
+        {
+            get
+            {
+                return Parent.Parent;
+            }
         }
 
         public void RemoveChild(TreeNode<T> child)

@@ -16,6 +16,19 @@ namespace DavidRedBlack
             Dictionary<string, Action> actions = new Dictionary<string, Action>();
             Dictionary<string, Action<string>> actionsWithArguements = new Dictionary<string, Action<string>>();
 
+            actions.Add("test", () =>
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    tree.Insert(i);
+                }
+                //for (int i = 50; i > 25; i--)
+                //{
+                //    tree.Insert(i);
+                //}
+            });
+
+
             actions.Add("lazy", () =>
             {
                 tree.Insert(5);
@@ -68,10 +81,10 @@ namespace DavidRedBlack
                 {
                     result.Invoke();
                 }
-                else if(actions.TryGetValue(operation, out var result2))
+                else if(actionsWithArguements.TryGetValue(operation, out var result2))
                 {
                     Console.WriteLine("arguements:");
-                    result2.Invoke();
+                    result2.Invoke(Console.ReadLine());
                 }
                 else
                 {
