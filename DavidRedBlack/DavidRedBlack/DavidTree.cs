@@ -56,7 +56,7 @@ namespace DavidRedBlack
 
         private void RuleCheck(TreeNode<T> currentNode)
         {
-            if(currentNode == null)
+            if(currentNode == null || currentNode is NullNode<T>)
             {
                 return;
             }
@@ -71,8 +71,9 @@ namespace DavidRedBlack
                 return;
             }
             //we got two reds in a row oh noes
+
             //Case 1: If the the child's uncle is also red, move blackness down a level from its grandparent to BOTH of the grandparent's children
-            if(currentNode.Uncle.Color == NodeColor.Red)
+            if(!(currentNode.Uncle is NullNode<T>) && currentNode.Uncle.Color == NodeColor.Red)
             {
                 currentNode.Grandparent.MoveBlacknessDown();
                 top.Color = NodeColor.Black;
@@ -83,13 +84,13 @@ namespace DavidRedBlack
             if(currentNode == currentNode.Parent.RightNode
                 && currentNode.Parent == currentNode.Grandparent.LeftNode)
             {
-                RotateLeft(currentNode.Parent);
+                RotateRight(currentNode.Parent);
             }
             //Case 3: If the node is a left child and it's parent is a right child, rotate parent right and check Case 4 and 5
             else if (currentNode == currentNode.Parent.LeftNode
                 && currentNode.Parent == currentNode.Grandparent.RightNode)
             {
-                RotateRight(currentNode.Parent);
+                RotateLeft(currentNode.Parent);
             }
             
             //Case 4: If the node is a left child and it's parent is a left child, rotate grandparent right
@@ -100,7 +101,7 @@ namespace DavidRedBlack
             }
 
             //Case 5: If node is a right child and parent is a right child, rotate grandparent left
-            if(currentNode == currentNode.Parent.RightNode
+            else if(currentNode == currentNode.Parent.RightNode
                 && currentNode.Parent == currentNode.Grandparent.RightNode)
             {
                 RotateLeft(currentNode.Grandparent);
@@ -109,7 +110,7 @@ namespace DavidRedBlack
             //Finally set root to black
             top.Color = NodeColor.Black;
 
-            
+
             //unwind recursion and rebalance
         }
 
@@ -195,23 +196,33 @@ namespace DavidRedBlack
         }
         #endregion
         #region Rotating
-        public void RotateRight(TreeNode<T> pivotNode)
+        public void RotateLeft(TreeNode<T> pivotNode)
         {
             TreeNode<T> newParent = pivotNode.RightNode;
             pivotNode.RightNode = newParent.LeftNode;
             newParent.LeftNode = pivotNode;
             newParent.Parent = pivotNode.Parent;
             pivotNode.Parent = newParent;
+
+            if(newParent.Parent == null)
+            {
+                top = newParent;
+            }
         }
 
         //literally copy pasted rotateRight and changed right to left and vice versa
-        public void RotateLeft(TreeNode<T> pivotNode)
+        public void RotateRight(TreeNode<T> pivotNode)
         {
             TreeNode<T> newParent = pivotNode.LeftNode;
             pivotNode.LeftNode = newParent.RightNode;
             newParent.RightNode = pivotNode;
             newParent.Parent = pivotNode.Parent;
             pivotNode.Parent = newParent;
+
+            if (newParent.Parent == null)
+            {
+                top = newParent;
+            }
         }
         #endregion
         #endregion

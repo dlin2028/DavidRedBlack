@@ -18,7 +18,7 @@ namespace DavidRedBlack
 
             actions.Add("test", () =>
             {
-                for (int i = 0; i < 5; i++)
+                for (int i = 0; i < 10; i++)
                 {
                     tree.Insert(i);
                 }
@@ -77,14 +77,17 @@ namespace DavidRedBlack
                 Console.WriteLine("operation:");
                 string operation = Console.ReadLine().ToString();
 
-                if(actions.TryGetValue(operation, out var result))
+                Action result;
+                Action<string> resultWithArguements;
+
+                if(actions.TryGetValue(operation, out result))
                 {
                     result.Invoke();
                 }
-                else if(actionsWithArguements.TryGetValue(operation, out var result2))
+                else if(actionsWithArguements.TryGetValue(operation, out resultWithArguements))
                 {
                     Console.WriteLine("arguements:");
-                    result2.Invoke(Console.ReadLine());
+                    resultWithArguements.Invoke(Console.ReadLine());
                 }
                 else
                 {
