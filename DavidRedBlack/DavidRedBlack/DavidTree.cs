@@ -39,7 +39,7 @@ namespace DavidRedBlack
                 {
                     currentNode.LeftNode = new TreeNode<T>(item);
                     currentNode.LeftNode.Parent = currentNode;
-                    RuleCheck(top);
+                    RuleCheck(currentNode.LeftNode);
                 }
             }
             else
@@ -48,7 +48,7 @@ namespace DavidRedBlack
                 {
                     currentNode.RightNode = new TreeNode<T>(item);
                     currentNode.RightNode.Parent = currentNode;
-                    RuleCheck(top);
+                    RuleCheck(currentNode.RightNode);
                 }
             }
             return false;
@@ -61,8 +61,7 @@ namespace DavidRedBlack
                 return;
             }
 
-            RuleCheck(currentNode.LeftNode);
-            RuleCheck(currentNode.RightNode);
+            if(currentNode.LeftNode.Color == NodeColor.Black && currentNode.RightNode.Color == NodeColor.Black)
 
             if (currentNode.Parent == null
                 || currentNode.Color != NodeColor.Red
@@ -84,13 +83,13 @@ namespace DavidRedBlack
             if(currentNode == currentNode.Parent.RightNode
                 && currentNode.Parent == currentNode.Grandparent.LeftNode)
             {
-                RotateRight(currentNode.Parent);
+                RotateLeft(currentNode.Parent);
             }
             //Case 3: If the node is a left child and it's parent is a right child, rotate parent right and check Case 4 and 5
             else if (currentNode == currentNode.Parent.LeftNode
                 && currentNode.Parent == currentNode.Grandparent.RightNode)
             {
-                RotateLeft(currentNode.Parent);
+                RotateRight(currentNode.Parent);
             }
             
             //Case 4: If the node is a left child and it's parent is a left child, rotate grandparent right
@@ -110,6 +109,7 @@ namespace DavidRedBlack
             //Finally set root to black
             top.Color = NodeColor.Black;
 
+            RuleCheck(currentNode.Parent);
 
             //unwind recursion and rebalance
         }
