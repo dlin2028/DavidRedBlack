@@ -14,7 +14,7 @@ namespace DavidRedBlack
         {
             top = null;
         }
-
+        
         public void Insert(T item)
         {
             insert(item, top);
@@ -26,13 +26,13 @@ namespace DavidRedBlack
             {
                 return true;
             }
-            else if(top == null)
+            else if (top == null)
             {
                 top = new TreeNode<T>(item);
                 top.Color = NodeColor.Black;
                 return true;
             }
-
+            
             if (currentNode.Item.CompareTo(item) > 0)
             {
                 if (insert(item, currentNode.LeftNode))
@@ -40,6 +40,7 @@ namespace DavidRedBlack
                     currentNode.LeftNode = new TreeNode<T>(item);
                     currentNode.LeftNode.Parent = currentNode;
                     RuleCheck(currentNode.LeftNode);
+                    
                 }
             }
             else
@@ -53,7 +54,7 @@ namespace DavidRedBlack
             }
             return false;
         }
-
+        
         private void RuleCheck(TreeNode<T> currentNode)
         {
             if(currentNode == null || currentNode is NullNode<T>)
@@ -61,12 +62,11 @@ namespace DavidRedBlack
                 return;
             }
 
-            if(currentNode.LeftNode.Color == NodeColor.Black && currentNode.RightNode.Color == NodeColor.Black)
-
             if (currentNode.Parent == null
                 || currentNode.Color != NodeColor.Red
                 || currentNode.Parent.Color != NodeColor.Red)
             {
+                top.Color = NodeColor.Black;
                 return;
             }
             //we got two reds in a row oh noes
@@ -96,6 +96,10 @@ namespace DavidRedBlack
             if(currentNode == currentNode.Parent.LeftNode
                 && currentNode.Parent == currentNode.Grandparent.LeftNode)
             {
+                currentNode.Grandparent.Color = NodeColor.Red;
+                currentNode.Parent.Color = NodeColor.Black;
+                currentNode.Grandparent.RightNode.Color = NodeColor.Black;
+
                 RotateRight(currentNode.Grandparent);
             }
 
@@ -103,6 +107,10 @@ namespace DavidRedBlack
             else if(currentNode == currentNode.Parent.RightNode
                 && currentNode.Parent == currentNode.Grandparent.RightNode)
             {
+                currentNode.Grandparent.Color = NodeColor.Red;
+                currentNode.Parent.Color = NodeColor.Black;
+                currentNode.Grandparent.LeftNode.Color = NodeColor.Black;
+
                 RotateLeft(currentNode.Grandparent);
             }
 

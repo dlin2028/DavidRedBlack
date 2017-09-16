@@ -19,20 +19,40 @@ namespace DavidRedBlack
             get
             {
                 int temp = 0;
-                if (LeftNode != null)
-                {
-                    temp -= LeftNode.Height;
-                }
-                if (RightNode != null)
-                {
-                    temp += RightNode.Height;
-                }
+
+                temp -= LeftNode.Height;
+                temp += RightNode.Height;
+
                 return temp;
             }
         }
         public NodeColor Color;
-        
-        public int Height;
+
+        public int Height
+        {
+            get
+            {
+                if(this is NullNode<T>)
+                {
+                    return 0;
+                }
+                else
+                {
+                    if(LeftNode.Height > RightNode.Height)
+                    {
+                        return LeftNode.Height + 1;
+                    }
+                    else
+                    {
+                        return RightNode.Height + 1;
+                    }
+                }
+            }
+            set
+            {
+
+            }
+        }
         public T Item;
         public TreeNode<T> LeftNode;
         public TreeNode<T> RightNode;
@@ -42,7 +62,6 @@ namespace DavidRedBlack
         public TreeNode(T item)
         {
             Item = item;
-            Height = 1;
             Color = NodeColor.Red;
             LeftNode = new NullNode<T>(this);
             RightNode = new NullNode<T>(this);
@@ -57,7 +76,7 @@ namespace DavidRedBlack
             }
             RightNode = newChild;
         }
-        
+
         public void MoveBlacknessDown()
         {
             LeftNode.Color = NodeColor.Black;
@@ -66,8 +85,8 @@ namespace DavidRedBlack
         }
 
         public TreeNode<T> GetSibling(TreeNode<T> child)
-        { 
-            if(child == LeftNode)
+        {
+            if (child == LeftNode)
             {
                 return RightNode;
             }
@@ -78,7 +97,7 @@ namespace DavidRedBlack
         {
             get
             {
-                return Parent.GetSibling(this);
+                return Grandparent.GetSibling(this);
             }
         }
 
