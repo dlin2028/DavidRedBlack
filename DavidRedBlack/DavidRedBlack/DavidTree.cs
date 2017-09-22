@@ -39,7 +39,7 @@ namespace DavidRedBlack
                 {
                     currentNode.LeftNode = new TreeNode<T>(item);
                     currentNode.LeftNode.Parent = currentNode;
-                    RuleCheck(currentNode.LeftNode);
+                    RuleCheck(top);
                     
                 }
             }
@@ -49,34 +49,40 @@ namespace DavidRedBlack
                 {
                     currentNode.RightNode = new TreeNode<T>(item);
                     currentNode.RightNode.Parent = currentNode;
-                    RuleCheck(currentNode.RightNode);
+                    RuleCheck(top);
                 }
             }
             return false;
         }
         
-        private void RuleCheck(TreeNode<T> currentNode)
+        private void RuleCheck(TreeNode<T> currentNode, bool fixUp = false)
         {
             if(currentNode == null || currentNode is NullNode<T>)
             {
                 return;
             }
 
-            if (currentNode.Parent == null
-                || currentNode.Color != NodeColor.Red
-                || currentNode.Parent.Color != NodeColor.Red)
+            if(!fixUp)
             {
-                top.Color = NodeColor.Black;
-                return;
-            }
-            //we got two reds in a row oh noes
+                RuleCheck(currentNode.LeftNode);
+                RuleCheck(currentNode.RightNode);
 
-            //Case 1: If the the child's uncle is also red, move blackness down a level from its grandparent to BOTH of the grandparent's children
-            if(!(currentNode.Uncle is NullNode<T>) && currentNode.Uncle.Color == NodeColor.Red)
-            {
-                currentNode.Grandparent.MoveBlacknessDown();
-                top.Color = NodeColor.Black;
-                return;
+                if (currentNode.Parent == null
+                    || currentNode.Color != NodeColor.Red
+                    || currentNode.Parent.Color != NodeColor.Red)
+                {
+                    top.Color = NodeColor.Black;
+                    return;
+                }
+                //we got two reds in a row oh noes
+
+                //Case 1: If the the child's uncle is also red, move blackness down a level from its grandparent to BOTH of the grandparent's children
+                if (!(currentNode.Uncle is NullNode<T>) && currentNode.Uncle.Color == NodeColor.Red)
+                {
+                    currentNode.Grandparent.MoveBlacknessDown();
+                    top.Color = NodeColor.Black;
+                    return;
+                }
             }
 
             //Case 2: If the node is a right child and the parent is a left child, rotate parent left and check both Case 4 and 5(see below)
@@ -84,12 +90,14 @@ namespace DavidRedBlack
                 && currentNode.Parent == currentNode.Grandparent.LeftNode)
             {
                 RotateLeft(currentNode.Parent);
+                currentNode = currentNode.LeftNode;
             }
             //Case 3: If the node is a left child and it's parent is a right child, rotate parent right and check Case 4 and 5
             else if (currentNode == currentNode.Parent.LeftNode
                 && currentNode.Parent == currentNode.Grandparent.RightNode)
             {
                 RotateRight(currentNode.Parent);
+                currentNode = currentNode.RightNode;
             }
             
             //Case 4: If the node is a left child and it's parent is a left child, rotate grandparent right
@@ -122,10 +130,57 @@ namespace DavidRedBlack
             //unwind recursion and rebalance
         }
 
+        public TreeNode<T> ReplaceNode(TreeNode<T> nodeToReplace)
+        {
+            //get the largest value node of the leftnode
+            TreeNode<T> foundNode = nodeToReplace.LeftNode;
+            while(!(foundNode.LeftNode is NullNode<T>))
+            {
+                foundNode = foundNode.RightNode;
+            }
+
+            //fix the parent of the found node
+            if(foundNode.Parent.RightNode == foundNode)
+            {
+                foundNode.Parent.RightNode = new NullNode<T>(foundNode.Parent);
+            }
+            else
+            {
+                foundNode.Parent.LeftNode = new NullNode<T>(foundNode.Parent);
+            }
+
+            foundNode.LeftNode = nodeToReplace.LeftNode;
+            foundNode.RightNode = nodeToReplace.RightNode;
+            foundNode.Parent = nodeToReplace.Parent;
+          
+        }
 
         public void Delete(T item)
         {
+            TreeNode<T> nodeToDelete = Search(item);
+
+            ReplaceNode(nodeToDelete);
+
             //balancing stuff
+            DeleteFixUp()
+        }
+
+        public void DeleteFixUp(TreeNode<T> nodeToBeFixed)
+        {
+            //If the nodeToBeFixed is a left child and it's sibling is red then set that sibling to Black and its parent to RED, then left rotate parent.
+            if(nodeToBeFixed == nodeToBeFixed.Parent.LeftNode &&
+                nodeToBeFixed.Sibiling.Color == NodeColor.Red)
+            {
+                nodeToBeFixed.Sibiling.Color = NodeColor.Black;
+                nodeToBeFixed.Parent.Color = NodeColor.Red;
+                RotateLeft(nodeToBeFixed.Parent);
+            }
+
+            //If the nodeToBeFixed's nephews' are black then the sibling becomes red. Other wise we check Cases 2-5 from the RuleCheck function.
+            if(nodeToBeFixed.NephewsAreBlack)
+            {
+                nodeToBeFixed.Sibiling.Color = NodeColor.Red;
+            }
         }
 
 
@@ -163,7 +218,7 @@ namespace DavidRedBlack
         }
         private void preOrder(TreeNode<T> currentNode)
         {
-            if (currentNode == null)
+            if (currentNode is NullNode<T>)
             {
                 return;
             }
@@ -178,7 +233,7 @@ namespace DavidRedBlack
         }
         private void postOrder(TreeNode<T> currentNode)
         {
-            if (currentNode == null)
+            if (currentNode is NullNode<T>)
             {
                 return;
             }
@@ -194,7 +249,7 @@ namespace DavidRedBlack
         }
         private void inOrder(TreeNode<T> currentNode)
         {
-            if (currentNode == null)
+            if (currentNode is NullNode<T>)
             {
                 return;
             }
@@ -210,6 +265,12 @@ namespace DavidRedBlack
             pivotNode.RightNode = newParent.LeftNode;
             newParent.LeftNode = pivotNode;
             newParent.Parent = pivotNode.Parent;
+
+            if(pivotNode.Parent != null)
+            {
+                pivotNode.Parent.RightNode = newParent;
+            }
+
             pivotNode.Parent = newParent;
 
             if(newParent.Parent == null)
@@ -225,6 +286,12 @@ namespace DavidRedBlack
             pivotNode.LeftNode = newParent.RightNode;
             newParent.RightNode = pivotNode;
             newParent.Parent = pivotNode.Parent;
+
+            if (pivotNode.Parent != null)
+            {
+                pivotNode.Parent.LeftNode = newParent;
+            }
+
             pivotNode.Parent = newParent;
 
             if (newParent.Parent == null)

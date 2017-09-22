@@ -26,7 +26,29 @@ namespace DavidRedBlack
                 return temp;
             }
         }
+
+        public TreeNode<T> Sibiling
+        {
+            get
+            {
+                return Parent.GetSibling(this);
+            }
+        }
+
         public NodeColor Color;
+        public bool NephewsAreBlack
+        {
+            get
+            {
+                TreeNode<T> sibling = Parent.GetSibling(this);
+                if (sibling.LeftNode.Color == NodeColor.Black && sibling.RightNode.Color == NodeColor.Black)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        }
 
         public int Height
         {
