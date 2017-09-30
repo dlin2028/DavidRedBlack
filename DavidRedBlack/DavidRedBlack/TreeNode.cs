@@ -14,19 +14,28 @@ namespace DavidRedBlack
 
     class TreeNode<T> where T : IComparable
     {
-        public int Balance
+
+        public T Item;
+        public NodeColor Color;
+
+        public TreeNode<T> Parent;
+        public TreeNode<T> LeftNode;
+        public TreeNode<T> RightNode;
+
+        public TreeNode<T> Uncle
         {
             get
             {
-                int temp = 0;
-
-                temp -= LeftNode.Height;
-                temp += RightNode.Height;
-
-                return temp;
+                return Grandparent.GetSibling(Parent);
             }
         }
-
+        public TreeNode<T> Grandparent
+        {
+            get
+            {
+                return Parent.Parent;
+            }
+        }
         public TreeNode<T> Sibiling
         {
             get
@@ -34,8 +43,14 @@ namespace DavidRedBlack
                 return Parent.GetSibling(this);
             }
         }
-
-        public NodeColor Color;
+        public TreeNode<T> GetSibling(TreeNode<T> child)
+        {
+            if (child == LeftNode)
+            {
+                return RightNode;
+            }
+            return LeftNode;
+        }
         public bool NephewsAreBlack
         {
             get
@@ -54,13 +69,13 @@ namespace DavidRedBlack
         {
             get
             {
-                if(this is NullNode<T>)
+                if (this is NullNode<T>)
                 {
                     return 0;
                 }
                 else
                 {
-                    if(LeftNode.Height > RightNode.Height)
+                    if (LeftNode.Height > RightNode.Height)
                     {
                         return LeftNode.Height + 1;
                     }
@@ -75,11 +90,19 @@ namespace DavidRedBlack
 
             }
         }
-        public T Item;
-        public TreeNode<T> LeftNode;
-        public TreeNode<T> RightNode;
-        public TreeNode<T> Parent;
+        public int Balance
+        {
+            get
+            {
+                int temp = 0;
 
+                temp -= LeftNode.Height;
+                temp += RightNode.Height;
+
+                return temp;
+            }
+        }
+        
         public TreeNode() { }
         public TreeNode(T item)
         {
@@ -98,39 +121,6 @@ namespace DavidRedBlack
             }
             RightNode = newChild;
         }
-
-        public void MoveBlacknessDown()
-        {
-            LeftNode.Color = NodeColor.Black;
-            RightNode.Color = NodeColor.Black;
-            Color = NodeColor.Red;
-        }
-
-        public TreeNode<T> GetSibling(TreeNode<T> child)
-        {
-            if (child == LeftNode)
-            {
-                return RightNode;
-            }
-            return LeftNode;
-        }
-
-        public TreeNode<T> Uncle
-        {
-            get
-            {
-                return Grandparent.GetSibling(this);
-            }
-        }
-
-        public TreeNode<T> Grandparent
-        {
-            get
-            {
-                return Parent.Parent;
-            }
-        }
-
         public void RemoveChild(TreeNode<T> child)
         {
             if (child == LeftNode)
@@ -140,6 +130,16 @@ namespace DavidRedBlack
             }
             RightNode = null;
         }
+
+        public void MoveBlacknessDown()
+        {
+            LeftNode.Color = NodeColor.Black;
+            RightNode.Color = NodeColor.Black;
+            Color = NodeColor.Red;
+        }
+
+
+
     }
 }
 

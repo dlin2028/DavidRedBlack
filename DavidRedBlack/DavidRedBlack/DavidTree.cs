@@ -39,7 +39,7 @@ namespace DavidRedBlack
                 {
                     currentNode.LeftNode = new TreeNode<T>(item);
                     currentNode.LeftNode.Parent = currentNode;
-                    RuleCheck(top);
+                    RuleCheck(currentNode.LeftNode);
                     
                 }
             }
@@ -49,7 +49,7 @@ namespace DavidRedBlack
                 {
                     currentNode.RightNode = new TreeNode<T>(item);
                     currentNode.RightNode.Parent = currentNode;
-                    RuleCheck(top);
+                    RuleCheck(currentNode.RightNode);
                 }
             }
             return false;
@@ -64,9 +64,6 @@ namespace DavidRedBlack
 
             if(!fixUp)
             {
-                RuleCheck(currentNode.LeftNode);
-                RuleCheck(currentNode.RightNode);
-
                 if (currentNode.Parent == null
                     || currentNode.Color != NodeColor.Red
                     || currentNode.Parent.Color != NodeColor.Red)
@@ -152,7 +149,7 @@ namespace DavidRedBlack
             foundNode.LeftNode = nodeToReplace.LeftNode;
             foundNode.RightNode = nodeToReplace.RightNode;
             foundNode.Parent = nodeToReplace.Parent;
-          
+            return foundNode;
         }
 
         public void Delete(T item)
@@ -162,7 +159,6 @@ namespace DavidRedBlack
             ReplaceNode(nodeToDelete);
 
             //balancing stuff
-            DeleteFixUp()
         }
 
         public void DeleteFixUp(TreeNode<T> nodeToBeFixed)
@@ -262,42 +258,42 @@ namespace DavidRedBlack
         public void RotateLeft(TreeNode<T> pivotNode)
         {
             TreeNode<T> newParent = pivotNode.RightNode;
+            
             pivotNode.RightNode = newParent.LeftNode;
-            newParent.LeftNode = pivotNode;
+            pivotNode.RightNode.Parent = pivotNode;
+
             newParent.Parent = pivotNode.Parent;
-
-            if(pivotNode.Parent != null)
-            {
-                pivotNode.Parent.RightNode = newParent;
-            }
-
             pivotNode.Parent = newParent;
 
-            if(newParent.Parent == null)
+            newParent.LeftNode = pivotNode;
+
+            if (newParent.Parent == null)
             {
                 top = newParent;
             }
+
+            newParent.Parent.LeftNode = newParent;
         }
 
         //literally copy pasted rotateRight and changed right to left and vice versa
         public void RotateRight(TreeNode<T> pivotNode)
         {
             TreeNode<T> newParent = pivotNode.LeftNode;
+
             pivotNode.LeftNode = newParent.RightNode;
-            newParent.RightNode = pivotNode;
+            pivotNode.LeftNode.Parent = pivotNode;
+
             newParent.Parent = pivotNode.Parent;
-
-            if (pivotNode.Parent != null)
-            {
-                pivotNode.Parent.LeftNode = newParent;
-            }
-
             pivotNode.Parent = newParent;
+
+            newParent.RightNode = pivotNode;
 
             if (newParent.Parent == null)
             {
                 top = newParent;
             }
+
+            newParent.Parent.RightNode = newParent;
         }
         #endregion
         #endregion
