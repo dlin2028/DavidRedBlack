@@ -18,7 +18,7 @@ namespace DavidRedBlack
 
             actions.Add("test", () =>
             {
-                for (int i = 1; i < 11; i++)
+                for (int i = 1; i < 19; i++)
                 {
                     tree.Insert(i);
                 }
