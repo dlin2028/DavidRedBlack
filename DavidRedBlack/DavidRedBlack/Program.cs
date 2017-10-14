@@ -18,7 +18,7 @@ namespace DavidRedBlack
 
             actions.Add("test", () =>
             {
-                for (int i = 1; i < 19; i++)
+                for (int i = 1; i < 11; i++)
                 {
                     tree.Insert(i);
                 }
@@ -27,7 +27,6 @@ namespace DavidRedBlack
                 //    tree.Insert(i);
                 //}
             });
-
 
             actions.Add("lazy", () =>
             {
@@ -70,6 +69,11 @@ namespace DavidRedBlack
             actionsWithArguements.Add("search", (arguement) =>
             {
                 Console.WriteLine(tree.Search(int.Parse(arguement)).ToString());
+            });
+
+            actionsWithArguements.Add("delete", (arguement) =>
+            {
+                tree.Delete(int.Parse(arguement));
             });
 
             while(true)

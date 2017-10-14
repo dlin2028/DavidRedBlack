@@ -55,36 +55,33 @@ namespace DavidRedBlack
             return false;
         }
 
-        private void RuleCheck(TreeNode<T> currentNode, bool fixUp = false)
+        private void RuleCheck(TreeNode<T> currentNode)
         {
             if (currentNode == null || currentNode is NullNode<T>)
             {
                 return;
             }
-
-            if (!fixUp)
+            if (currentNode.Parent == null
+                || currentNode.Color != NodeColor.Red
+                || currentNode.Parent.Color != NodeColor.Red)
             {
-                if (currentNode.Parent == null
-                    || currentNode.Color != NodeColor.Red
-                    || currentNode.Parent.Color != NodeColor.Red)
-                {
-                    RuleCheck(currentNode.Parent);
-                    return;
-                }
-                //we got two reds in a row oh noes
-
-                //Case 1: If the the child's uncle is also red, move blackness down a level from its grandparent to BOTH of the grandparent's children
-                if (!(currentNode.Uncle is NullNode<T>) && currentNode.Uncle.Color == NodeColor.Red)
-                {
-                    //i.Change color of parent and uncle to BLACK
-                    //ii.Change color of grandparent to RED
-                    currentNode.Grandparent.MoveBlacknessDown();
-
-                    //iii.Repeat Rule Check on x's grandparent
-                    RuleCheck(currentNode.Grandparent);
-                    return;
-                }
+                RuleCheck(currentNode.Parent);
+                return;
             }
+            //we got two reds in a row oh noes
+
+            //Case 1: If the the child's uncle is also red, move blackness down a level from its grandparent to BOTH of the grandparent's children
+            if (!(currentNode.Uncle is NullNode<T>) && currentNode.Uncle.Color == NodeColor.Red)
+            {
+                //i.Change color of parent and uncle to BLACK
+                //ii.Change color of grandparent to RED
+                currentNode.Grandparent.MoveBlacknessDown();
+
+                //iii.Repeat Rule Check on x's grandparent
+                RuleCheck(currentNode.Grandparent);
+                return;
+            }
+
 
 
             //i. Left-Right Case: If x is a right child and it's parent is a left child, rotate parent left (check step ii)
@@ -150,9 +147,20 @@ namespace DavidRedBlack
                 foundNode.Parent.LeftNode = new NullNode<T>(foundNode.Parent);
             }
 
+            //fix the parent of the NodeToReplace
+            if (nodeToReplace.Parent.LeftNode == nodeToReplace)
+            {
+                nodeToReplace.Parent.LeftNode = foundNode;
+            }
+            else
+            {
+                nodeToReplace.Parent.RightNode = foundNode;
+            }
+
             foundNode.LeftNode = nodeToReplace.LeftNode;
             foundNode.RightNode = nodeToReplace.RightNode;
             foundNode.Parent = nodeToReplace.Parent;
+
             return foundNode;
         }
 
@@ -160,26 +168,115 @@ namespace DavidRedBlack
         {
             TreeNode<T> nodeToDelete = Search(item);
 
-            ReplaceNode(nodeToDelete);
-
-            //balancing stuff
+            DeleteFixUp(ReplaceNode(nodeToDelete));
         }
 
-        public void DeleteFixUp(TreeNode<T> nodeToBeFixed)
+        public void DeleteFixUp(TreeNode<T> currentNode)
         {
-            //If the nodeToBeFixed is a left child and it's sibling is red then set that sibling to Black and its parent to RED, then left rotate parent.
-            if (nodeToBeFixed == nodeToBeFixed.Parent.LeftNode &&
-                nodeToBeFixed.Sibiling.Color == NodeColor.Red)
+            //(a)If sibling s is black and at least one of the sibling's children is red, perform rotations on the sibling.
+            //      Let the red child of s be r. This case can be divided into 4 subcases depending upon positions of s and r. 
+            //      (This should remind you of AVL double rotates and the cases in InsertRuleCheck).            
+            if (currentNode.Sibiling.Color == NodeColor.Black
+                && (currentNode.Sibiling.LeftNode.Color == NodeColor.Red || currentNode.Sibiling.LeftNode.Color == NodeColor.Red))
             {
-                nodeToBeFixed.Sibiling.Color = NodeColor.Black;
-                nodeToBeFixed.Parent.Color = NodeColor.Red;
-                RotateLeft(nodeToBeFixed.Parent);
+                TreeNode<T> sibilingChild;
+                if (currentNode.Sibiling.LeftNode.Color == NodeColor.Red)
+                {
+                    sibilingChild = currentNode.Sibiling.LeftNode;
+                }
+                else
+                {
+                    sibilingChild = currentNode.Sibiling.RightNode;
+                }
+
+                #region cases
+                //Case 1: If the the child's uncle is also red, move blackness down a level from its grandparent to BOTH of the grandparent's children
+                if (!(sibilingChild.Uncle is NullNode<T>) && sibilingChild.Uncle.Color == NodeColor.Red)
+                {
+                    //i.Change color of parent and uncle to BLACK
+                    //ii.Change color of grandparent to RED
+                    sibilingChild.Grandparent.MoveBlacknessDown();
+
+                    //iii.Repeat Rule Check on x's grandparent
+                    RuleCheck(sibilingChild.Grandparent);
+                    return;
+                }
+
+
+
+                //i. Left-Right Case: If x is a right child and it's parent is a left child, rotate parent left (check step ii)
+                if (sibilingChild == sibilingChild.Parent.RightNode
+                    && sibilingChild.Parent == sibilingChild.Grandparent.LeftNode)
+                {
+                    RotateLeft(sibilingChild.Parent);
+                    sibilingChild = sibilingChild.LeftNode;
+                }
+                //iii.Right - Left Case: If x is a left child and it's parent is a right child, rotate parent right (check step iv)
+                else if (sibilingChild == sibilingChild.Parent.LeftNode
+                    && sibilingChild.Parent == sibilingChild.Grandparent.RightNode)
+                {
+                    RotateRight(sibilingChild.Parent);
+                    sibilingChild = sibilingChild.RightNode;
+                }
+
+                //ii.Left - Left Case: If x is a left child and it's parent is a left child, rotate grandparent right and swap colors of grandparent and parent.
+                if (sibilingChild == sibilingChild.Parent.LeftNode
+                    && sibilingChild.Parent == sibilingChild.Grandparent.LeftNode)
+                {
+                    NodeColor temp = sibilingChild.Grandparent.Color;
+                    sibilingChild.Grandparent.Color = sibilingChild.Parent.Color;
+                    sibilingChild.Parent.Color = temp;
+
+                    RotateRight(sibilingChild.Grandparent);
+                }
+
+                //iv.Right - Right Case: If x is a right child and it's parent is a right child, rotate grandparent left and swap colors of grandparent and parent.
+                else if (sibilingChild == sibilingChild.Parent.RightNode
+                    && sibilingChild.Parent == sibilingChild.Grandparent.RightNode)
+                {
+                    NodeColor temp = sibilingChild.Grandparent.Color;
+                    sibilingChild.Grandparent.Color = sibilingChild.Parent.Color;
+                    sibilingChild.Parent.Color = temp;
+
+                    RotateLeft(sibilingChild.Grandparent);
+                }
+                #endregion
             }
 
-            //If the nodeToBeFixed's nephews' are black then the sibling becomes red. Other wise we check Cases 2-5 from the RuleCheck function.
-            if (nodeToBeFixed.NephewsAreBlack)
+            //(b) If sibling is black and both its' children are black, perform recoloring. Set sibling to red
+            //and parent to double black and recur for the parent. If parent was red, then we don't need to recur
+            //since red +double black = single black.
+            if (currentNode.Sibiling.Color == NodeColor.Black
+                && currentNode.Sibiling.LeftNode.Color == NodeColor.Black
+                && currentNode.Sibiling.RightNode.Color == NodeColor.Black)
             {
-                nodeToBeFixed.Sibiling.Color = NodeColor.Red;
+                
+
+                currentNode.Sibiling.Color = NodeColor.Red;
+                currentNode.Parent.Color = NodeColor.DoubleBlack;
+            }
+            
+            //(c)  If sibling is red, perform a single rotation to move sibling up, recolor old sibling and old parent.
+            //      The new sibling is always black. This mainly converts the tree to black sibling case (by rotation) 
+            //and leads to case (a)or(b).
+            if (currentNode.Sibiling.Color == NodeColor.Red)
+            {
+                if (currentNode.Sibiling.Parent.RightNode == currentNode)
+                {
+                    NodeColor oldParentColor = currentNode.Parent.Color;
+                    currentNode.Parent.Color = currentNode.Sibiling.Color;
+                    currentNode.Sibiling.Color = oldParentColor;
+
+                    RotateLeft(currentNode.Sibiling);
+                }
+                else
+                {
+                    NodeColor oldParentColor = currentNode.Parent.Color;
+                    currentNode.Parent.Color = currentNode.Sibiling.Color;
+                    currentNode.Sibiling.Color = oldParentColor;
+
+                    RotateRight(currentNode.Sibiling);
+                }
             }
         }
 
@@ -201,7 +298,7 @@ namespace DavidRedBlack
             {
                 return search(key, currentNode.LeftNode);
             }
-            else if (currentNode.Item.CompareTo(key) != 0)
+            else if (currentNode.Item.CompareTo(key) < 0)
             {
                 return search(key, currentNode.RightNode);
             }
@@ -307,7 +404,7 @@ namespace DavidRedBlack
             }
             else
             {
-                if(newParent.Parent.LeftNode == pivotNode)
+                if (newParent.Parent.LeftNode == pivotNode)
                 {
                     newParent.Parent.LeftNode = newParent;
                 }

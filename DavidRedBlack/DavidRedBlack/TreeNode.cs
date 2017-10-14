@@ -9,7 +9,8 @@ namespace DavidRedBlack
     public enum NodeColor
     {
         Red,
-        Black
+        Black,
+        DoubleBlack
     }
 
     class TreeNode<T> where T : IComparable
@@ -125,10 +126,10 @@ namespace DavidRedBlack
         {
             if (child == LeftNode)
             {
-                LeftNode = null;
+                LeftNode = new NullNode<T>(this);
                 return;
             }
-            RightNode = null;
+            RightNode = new NullNode<T>(this);
         }
 
         public void MoveBlacknessDown()
