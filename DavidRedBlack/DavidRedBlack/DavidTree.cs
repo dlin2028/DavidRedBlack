@@ -132,52 +132,104 @@ namespace DavidRedBlack
         {
             //get the largest value node of the leftnode
             TreeNode<T> foundNode = nodeToReplace.LeftNode;
-            while (!(foundNode.LeftNode is NullNode<T>))
+            TreeNode<T> replacementNode;
+            
+            if(!(foundNode is NullNode<T>))
             {
-                foundNode = foundNode.RightNode;
+                while (!(foundNode.RightNode is NullNode<T>))
+                {
+                    foundNode = foundNode.RightNode;
+                }
+                //finding replacement node
+                if (!(foundNode.LeftNode is NullNode<T>))
+                {
+                    replacementNode = foundNode.LeftNode;
+                    replacementNode.Parent = foundNode.Parent;
+                    if (replacementNode.Color == NodeColor.Red || foundNode.Color == NodeColor.Red)
+                    {
+                        replacementNode.Color = NodeColor.Black;
+                    }
+                }
+                else
+                {
+                    replacementNode = new NullNode<T>(foundNode.Parent);
+                    replacementNode.Color = NodeColor.DoubleBlack;
+                }
             }
+            else
+            {
+                replacementNode = new NullNode<T>(foundNode.Parent);
+                if (nodeToReplace.Color != NodeColor.Red)
+                {
+                    replacementNode.Color = NodeColor.DoubleBlack;
+                }
+            }
+
 
             //fix the parent of the found node
             if (foundNode.Parent.RightNode == foundNode)
             {
-                foundNode.Parent.RightNode = new NullNode<T>(foundNode.Parent);
+                foundNode.Parent.RightNode = replacementNode;
             }
             else
             {
-                foundNode.Parent.LeftNode = new NullNode<T>(foundNode.Parent);
+                foundNode.Parent.LeftNode = replacementNode;
             }
 
-            //fix the parent of the NodeToReplace
-            if (nodeToReplace.Parent.LeftNode == nodeToReplace)
+            if (nodeToReplace.Parent == null)
             {
-                nodeToReplace.Parent.LeftNode = foundNode;
+                foundNode.Parent = null;
+                top = foundNode;
             }
             else
             {
-                nodeToReplace.Parent.RightNode = foundNode;
+                //fix the parent of the NodeToReplace
+                if (nodeToReplace.Parent.LeftNode == nodeToReplace)
+                {
+                    nodeToReplace.Parent.LeftNode = foundNode;
+                }
+                else if(nodeToReplace.Parent.RightNode == nodeToReplace)
+                {
+                    nodeToReplace.Parent.RightNode = foundNode;
+                }
             }
+
 
             foundNode.LeftNode = nodeToReplace.LeftNode;
             foundNode.RightNode = nodeToReplace.RightNode;
             foundNode.Parent = nodeToReplace.Parent;
-
-            return foundNode;
+            
+            return replacementNode;
         }
 
         public void Delete(T item)
         {
             TreeNode<T> nodeToDelete = Search(item);
+            TreeNode<T> replacementNode = ReplaceNode(nodeToDelete);
 
-            DeleteFixUp(ReplaceNode(nodeToDelete));
+            
+            if(top == replacementNode)
+            {
+                replacementNode.Color = NodeColor.Black;
+            }
+            else if (replacementNode.Color == NodeColor.DoubleBlack)
+            {
+                DeleteFixUp(replacementNode);
+            }
+
         }
 
         public void DeleteFixUp(TreeNode<T> currentNode)
         {
+            if(currentNode.Color != NodeColor.DoubleBlack || top == currentNode)
+            {
+                return;
+            }
             //(a)If sibling s is black and at least one of the sibling's children is red, perform rotations on the sibling.
             //      Let the red child of s be r. This case can be divided into 4 subcases depending upon positions of s and r. 
             //      (This should remind you of AVL double rotates and the cases in InsertRuleCheck).            
             if (currentNode.Sibiling.Color == NodeColor.Black
-                && (currentNode.Sibiling.LeftNode.Color == NodeColor.Red || currentNode.Sibiling.LeftNode.Color == NodeColor.Red))
+                && (currentNode.Sibiling.LeftNode.Color == NodeColor.Red || currentNode.Sibiling.RightNode.Color == NodeColor.Red))
             {
                 TreeNode<T> sibilingChild;
                 if (currentNode.Sibiling.LeftNode.Color == NodeColor.Red)
@@ -190,20 +242,6 @@ namespace DavidRedBlack
                 }
 
                 #region cases
-                //Case 1: If the the child's uncle is also red, move blackness down a level from its grandparent to BOTH of the grandparent's children
-                if (!(sibilingChild.Uncle is NullNode<T>) && sibilingChild.Uncle.Color == NodeColor.Red)
-                {
-                    //i.Change color of parent and uncle to BLACK
-                    //ii.Change color of grandparent to RED
-                    sibilingChild.Grandparent.MoveBlacknessDown();
-
-                    //iii.Repeat Rule Check on x's grandparent
-                    RuleCheck(sibilingChild.Grandparent);
-                    return;
-                }
-
-
-
                 //i. Left-Right Case: If x is a right child and it's parent is a left child, rotate parent left (check step ii)
                 if (sibilingChild == sibilingChild.Parent.RightNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.LeftNode)
@@ -241,6 +279,7 @@ namespace DavidRedBlack
                     RotateLeft(sibilingChild.Grandparent);
                 }
                 #endregion
+                return;
             }
 
             //(b) If sibling is black and both its' children are black, perform recoloring. Set sibling to red
@@ -250,15 +289,16 @@ namespace DavidRedBlack
                 && currentNode.Sibiling.LeftNode.Color == NodeColor.Black
                 && currentNode.Sibiling.RightNode.Color == NodeColor.Black)
             {
-                
-
                 currentNode.Sibiling.Color = NodeColor.Red;
                 currentNode.Parent.Color = NodeColor.DoubleBlack;
+
+                DeleteFixUp(currentNode.Parent);
+                return;
             }
             
             //(c)  If sibling is red, perform a single rotation to move sibling up, recolor old sibling and old parent.
             //      The new sibling is always black. This mainly converts the tree to black sibling case (by rotation) 
-            //and leads to case (a)or(b).
+            //      and leads to case (a)or(b).
             if (currentNode.Sibiling.Color == NodeColor.Red)
             {
                 if (currentNode.Sibiling.Parent.RightNode == currentNode)
@@ -277,6 +317,7 @@ namespace DavidRedBlack
 
                     RotateRight(currentNode.Sibiling);
                 }
+                DeleteFixUp(currentNode);
             }
         }
 
@@ -418,4 +459,3 @@ namespace DavidRedBlack
         #endregion
     }
 }
-
