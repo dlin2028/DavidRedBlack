@@ -86,10 +86,6 @@ namespace DavidRedBlack
                     }
                 }
             }
-            set
-            {
-
-            }
         }
         public int Balance
         {

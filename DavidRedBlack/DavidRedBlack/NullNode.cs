@@ -12,7 +12,6 @@ namespace DavidRedBlack
             :base()
         {
             Parent = parent;
-            Height = 0;
             Color = NodeColor.Black;
         }
     }

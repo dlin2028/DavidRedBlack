@@ -18,6 +18,7 @@ namespace DavidRedBlack
         public void Insert(T item)
         {
             insert(item, top);
+            top.Color = NodeColor.Black;
         }
         private bool insert(T item, TreeNode<T> currentNode)
         {
@@ -133,7 +134,6 @@ namespace DavidRedBlack
             //get the largest value node of the leftnode
             TreeNode<T> foundNode = nodeToReplace.LeftNode;
             TreeNode<T> replacementNode;
-            
             if(!(foundNode is NullNode<T>))
             {
                 while (!(foundNode.RightNode is NullNode<T>))
@@ -158,11 +158,22 @@ namespace DavidRedBlack
             }
             else
             {
-                replacementNode = new NullNode<T>(foundNode.Parent);
+                //case where nodetodelete is leaf
+                replacementNode = new NullNode<T>(foundNode.Grandparent);
                 if (nodeToReplace.Color != NodeColor.Red)
                 {
                     replacementNode.Color = NodeColor.DoubleBlack;
                 }
+
+                if (nodeToReplace.Parent.LeftNode == nodeToReplace)
+                {
+                    nodeToReplace.Parent.LeftNode = replacementNode;
+                }
+                else
+                {
+                    nodeToReplace.Parent.RightNode = replacementNode;
+                }
+                return replacementNode;
             }
 
 
@@ -196,7 +207,11 @@ namespace DavidRedBlack
 
 
             foundNode.LeftNode = nodeToReplace.LeftNode;
+            foundNode.LeftNode.Parent = foundNode;
+
             foundNode.RightNode = nodeToReplace.RightNode;
+            foundNode.RightNode.Parent = foundNode;
+
             foundNode.Parent = nodeToReplace.Parent;
             
             return replacementNode;
@@ -216,7 +231,10 @@ namespace DavidRedBlack
             {
                 DeleteFixUp(replacementNode);
             }
-
+            if(replacementNode == top)
+            {
+                replacementNode.Color = NodeColor.Black;
+            }
         }
 
         public void DeleteFixUp(TreeNode<T> currentNode)
@@ -289,10 +307,18 @@ namespace DavidRedBlack
                 && currentNode.Sibiling.LeftNode.Color == NodeColor.Black
                 && currentNode.Sibiling.RightNode.Color == NodeColor.Black)
             {
-                currentNode.Sibiling.Color = NodeColor.Red;
-                currentNode.Parent.Color = NodeColor.DoubleBlack;
 
-                DeleteFixUp(currentNode.Parent);
+                if(currentNode.Parent.Color != NodeColor.Red)
+                {
+                    currentNode.Sibiling.Color = NodeColor.Red;
+                    currentNode.Parent.Color = NodeColor.DoubleBlack;
+                    DeleteFixUp(currentNode.Parent);
+                }
+                else
+                {
+                    currentNode.Sibiling.Color = NodeColor.Black;
+                    currentNode.Parent.Color = NodeColor.Black;
+                }
                 return;
             }
             
@@ -303,17 +329,15 @@ namespace DavidRedBlack
             {
                 if (currentNode.Sibiling.Parent.RightNode == currentNode)
                 {
-                    NodeColor oldParentColor = currentNode.Parent.Color;
-                    currentNode.Parent.Color = currentNode.Sibiling.Color;
-                    currentNode.Sibiling.Color = oldParentColor;
+                    currentNode.Parent.Color = NodeColor.Black;
+                    currentNode.Sibiling.Color = NodeColor.Black;
 
                     RotateLeft(currentNode.Sibiling);
                 }
                 else
                 {
-                    NodeColor oldParentColor = currentNode.Parent.Color;
-                    currentNode.Parent.Color = currentNode.Sibiling.Color;
-                    currentNode.Sibiling.Color = oldParentColor;
+                    currentNode.Parent.Color = NodeColor.Black;
+                    currentNode.Sibiling.Color = NodeColor.Black;
 
                     RotateRight(currentNode.Sibiling);
                 }
@@ -392,7 +416,7 @@ namespace DavidRedBlack
                 return;
             }
             inOrder(currentNode.LeftNode);
-            Console.WriteLine(currentNode.Item);
+            Console.WriteLine($"{currentNode.Item}, {currentNode.Color.ToString()}");
             inOrder(currentNode.RightNode);
         }
         #endregion
