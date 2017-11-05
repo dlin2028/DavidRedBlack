@@ -134,6 +134,7 @@ namespace DavidRedBlack
             //get the largest value node of the leftnode
             TreeNode<T> foundNode = nodeToReplace.LeftNode;
             TreeNode<T> replacementNode;
+
             if(!(foundNode is NullNode<T>))
             {
                 while (!(foundNode.RightNode is NullNode<T>))
@@ -219,6 +220,7 @@ namespace DavidRedBlack
 
         public void Delete(T item)
         {
+            Console.WriteLine("Deleting " + item.ToString());
             TreeNode<T> nodeToDelete = Search(item);
             TreeNode<T> replacementNode = ReplaceNode(nodeToDelete);
 
@@ -235,6 +237,7 @@ namespace DavidRedBlack
             {
                 replacementNode.Color = NodeColor.Black;
             }
+            top.Color = NodeColor.Black;
         }
 
         public void DeleteFixUp(TreeNode<T> currentNode)
@@ -264,6 +267,8 @@ namespace DavidRedBlack
                 if (sibilingChild == sibilingChild.Parent.RightNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.LeftNode)
                 {
+                    sibilingChild.Color = NodeColor.Black;
+                    currentNode.Color = NodeColor.Black;
                     RotateLeft(sibilingChild.Parent);
                     sibilingChild = sibilingChild.LeftNode;
                 }
@@ -271,6 +276,8 @@ namespace DavidRedBlack
                 else if (sibilingChild == sibilingChild.Parent.LeftNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.RightNode)
                 {
+                    sibilingChild.Color = NodeColor.Black;
+                    currentNode.Color = NodeColor.Black;
                     RotateRight(sibilingChild.Parent);
                     sibilingChild = sibilingChild.RightNode;
                 }
@@ -279,10 +286,8 @@ namespace DavidRedBlack
                 if (sibilingChild == sibilingChild.Parent.LeftNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.LeftNode)
                 {
-                    NodeColor temp = sibilingChild.Grandparent.Color;
-                    sibilingChild.Grandparent.Color = sibilingChild.Parent.Color;
-                    sibilingChild.Parent.Color = temp;
-
+                    sibilingChild.Color = NodeColor.Black;
+                    currentNode.Color = NodeColor.Black;
                     RotateRight(sibilingChild.Grandparent);
                 }
 
@@ -290,12 +295,11 @@ namespace DavidRedBlack
                 else if (sibilingChild == sibilingChild.Parent.RightNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.RightNode)
                 {
-                    NodeColor temp = sibilingChild.Grandparent.Color;
-                    sibilingChild.Grandparent.Color = sibilingChild.Parent.Color;
-                    sibilingChild.Parent.Color = temp;
-
+                    sibilingChild.Color = NodeColor.Black;
+                    currentNode.Color = NodeColor.Black;
                     RotateLeft(sibilingChild.Grandparent);
                 }
+
                 #endregion
                 return;
             }
@@ -312,6 +316,7 @@ namespace DavidRedBlack
                 {
                     currentNode.Sibiling.Color = NodeColor.Red;
                     currentNode.Parent.Color = NodeColor.DoubleBlack;
+                    currentNode.Color = NodeColor.Black;
                     DeleteFixUp(currentNode.Parent);
                 }
                 else
@@ -371,9 +376,23 @@ namespace DavidRedBlack
             {
                 return currentNode;
             }
-            throw new Exception("How can you see this error? You should be dead by now!");
         }
         #region Printing
+        public void Print()
+        {
+            print(top);
+        }
+        private void print(TreeNode<T> currentNode)
+        {
+            if (currentNode is NullNode<T>)
+            {
+                return;
+            }
+            Console.WriteLine(currentNode.Item);
+            print(currentNode.LeftNode);
+            print(currentNode.RightNode);
+        }
+
         public void PreOrder()
         {
             preOrder(top);
