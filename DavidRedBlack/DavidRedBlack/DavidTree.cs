@@ -23,14 +23,14 @@ namespace DavidRedBlack
         private bool insert(T item, TreeNode<T> currentNode)
         {
             //insert
-            if (currentNode is NullNode<T>)
-            {
-                return true;
-            }
-            else if (top == null)
+            if (top == null || top is NullNode<T>)
             {
                 top = new TreeNode<T>(item);
                 top.Color = NodeColor.Black;
+                return true;
+            }
+            else if (currentNode is NullNode<T>)
+            {
                 return true;
             }
 
@@ -55,7 +55,7 @@ namespace DavidRedBlack
             }
             return false;
         }
-
+        
         private void RuleCheck(TreeNode<T> currentNode)
         {
             if (currentNode == null || currentNode is NullNode<T>)
@@ -82,7 +82,6 @@ namespace DavidRedBlack
                 RuleCheck(currentNode.Grandparent);
                 return;
             }
-
 
 
             //i. Left-Right Case: If x is a right child and it's parent is a left child, rotate parent left (check step ii)
@@ -128,124 +127,111 @@ namespace DavidRedBlack
             //Finally set root to black
             top.Color = NodeColor.Black;
         }
-
         public TreeNode<T> ReplaceNode(TreeNode<T> nodeToReplace)
         {
-            //get the largest value node of the leftnode
-            TreeNode<T> foundNode = nodeToReplace.LeftNode;
-            TreeNode<T> replacementNode;
-
-            if(!(foundNode is NullNode<T>))
-            {
-                while (!(foundNode.RightNode is NullNode<T>))
-                {
-                    foundNode = foundNode.RightNode;
-                }
-                //finding replacement node
-                if (!(foundNode.LeftNode is NullNode<T>))
-                {
-                    replacementNode = foundNode.LeftNode;
-                    replacementNode.Parent = foundNode.Parent;
-                    if (replacementNode.Color == NodeColor.Red || foundNode.Color == NodeColor.Red)
-                    {
-                        replacementNode.Color = NodeColor.Black;
-                    }
-                }
-                else
-                {
-                    replacementNode = new NullNode<T>(foundNode.Parent);
-                    replacementNode.Color = NodeColor.DoubleBlack;
-                }
-            }
-            else
-            {
-                //case where nodetodelete is leaf
-                replacementNode = new NullNode<T>(foundNode.Grandparent);
-                if (nodeToReplace.Color != NodeColor.Red)
-                {
-                    replacementNode.Color = NodeColor.DoubleBlack;
-                }
-
-                if (nodeToReplace.Parent.LeftNode == nodeToReplace)
-                {
-                    nodeToReplace.Parent.LeftNode = replacementNode;
-                }
-                else
-                {
-                    nodeToReplace.Parent.RightNode = replacementNode;
-                }
-                return replacementNode;
-            }
-
-
-            //fix the parent of the found node
-            if (foundNode.Parent.RightNode == foundNode)
-            {
-                foundNode.Parent.RightNode = replacementNode;
-            }
-            else
-            {
-                foundNode.Parent.LeftNode = replacementNode;
-            }
-
             if (nodeToReplace.Parent == null)
             {
-                foundNode.Parent = null;
-                top = foundNode;
+                if (nodeToReplace.LeftNode is NullNode<T>)
+                {
+                    top = nodeToReplace.RightNode;
+                    top.Parent = null;
+                    return top;
+                }
+
+                nodeToReplace = nodeToReplace.LeftNode;
+                while (!(nodeToReplace.RightNode is NullNode<T>))
+                {
+                    nodeToReplace = nodeToReplace.RightNode;
+                }
+                return ReplaceNode(nodeToReplace);
+            }
+            if (nodeToReplace.LeftNode is NullNode<T> && nodeToReplace.RightNode is NullNode<T>)
+            {
+                if (nodeToReplace.Parent.RightNode == nodeToReplace)
+                {
+                    nodeToReplace.Parent.RightNode = new NullNode<T>(nodeToReplace.Parent);
+                    return nodeToReplace.Parent.RightNode;
+                }
+                else
+                {
+                    nodeToReplace.Parent.LeftNode = new NullNode<T>(nodeToReplace.Parent);
+                    return nodeToReplace.Parent.LeftNode;
+                }
+            }
+            if (nodeToReplace.LeftNode is NullNode<T>)
+            {
+                nodeToReplace.RightNode.Parent = nodeToReplace.Parent;
+                if (nodeToReplace.Parent.RightNode == nodeToReplace)
+                {
+                    nodeToReplace.Parent.RightNode = nodeToReplace.RightNode;
+                    return nodeToReplace.Parent.RightNode;
+                }
+                else
+                {
+                    nodeToReplace.Parent.LeftNode = nodeToReplace.RightNode;
+                    return nodeToReplace.Parent.LeftNode;
+                }
+            }
+            else if (nodeToReplace.RightNode is NullNode<T>)
+            {
+                nodeToReplace.LeftNode.Parent = nodeToReplace.Parent;
+                if (nodeToReplace.Parent.RightNode == nodeToReplace)
+                {
+                    nodeToReplace.Parent.RightNode = nodeToReplace.LeftNode;
+                    return nodeToReplace.Parent.RightNode;
+                }
+                else
+                {
+                    nodeToReplace.Parent.LeftNode = nodeToReplace.LeftNode;
+                    return nodeToReplace.Parent.LeftNode;
+                }
             }
             else
             {
-                //fix the parent of the NodeToReplace
-                if (nodeToReplace.Parent.LeftNode == nodeToReplace)
+                nodeToReplace = nodeToReplace.LeftNode;
+                while (!(nodeToReplace.RightNode is NullNode<T>))
                 {
-                    nodeToReplace.Parent.LeftNode = foundNode;
+                    nodeToReplace = nodeToReplace.RightNode;
                 }
-                else if(nodeToReplace.Parent.RightNode == nodeToReplace)
-                {
-                    nodeToReplace.Parent.RightNode = foundNode;
-                }
+                return ReplaceNode(nodeToReplace);
             }
-
-
-            foundNode.LeftNode = nodeToReplace.LeftNode;
-            foundNode.LeftNode.Parent = foundNode;
-
-            foundNode.RightNode = nodeToReplace.RightNode;
-            foundNode.RightNode.Parent = foundNode;
-
-            foundNode.Parent = nodeToReplace.Parent;
-            
-            return replacementNode;
         }
-
         public void Delete(T item)
         {
             Console.WriteLine("Deleting " + item.ToString());
             TreeNode<T> nodeToDelete = Search(item);
             TreeNode<T> replacementNode = ReplaceNode(nodeToDelete);
 
-            
-            if(top == replacementNode)
+            if(replacementNode.Parent == null)
+            {
+                top = replacementNode;
+                replacementNode.Color = NodeColor.Black;
+            }
+
+            if(nodeToDelete.Color == NodeColor.Red || replacementNode.Color == NodeColor.Red)
             {
                 replacementNode.Color = NodeColor.Black;
             }
-            else if (replacementNode.Color == NodeColor.DoubleBlack)
+            else if (replacementNode.Color == NodeColor.Black && nodeToDelete.Color == NodeColor.Black)
             {
+                replacementNode.Color = NodeColor.DoubleBlack;
                 DeleteFixUp(replacementNode);
-            }
-            if(replacementNode == top)
-            {
-                replacementNode.Color = NodeColor.Black;
             }
             top.Color = NodeColor.Black;
         }
 
         public void DeleteFixUp(TreeNode<T> currentNode)
         {
-            if(currentNode.Color != NodeColor.DoubleBlack || top == currentNode)
+            if (currentNode.Color != NodeColor.DoubleBlack)
             {
                 return;
             }
+            if(currentNode.Parent == null)
+            {
+                top = currentNode;
+                return;
+            }
+
             //(a)If sibling s is black and at least one of the sibling's children is red, perform rotations on the sibling.
             //      Let the red child of s be r. This case can be divided into 4 subcases depending upon positions of s and r. 
             //      (This should remind you of AVL double rotates and the cases in InsertRuleCheck).            
@@ -301,6 +287,7 @@ namespace DavidRedBlack
                 }
 
                 #endregion
+
                 return;
             }
 
@@ -312,7 +299,7 @@ namespace DavidRedBlack
                 && currentNode.Sibiling.RightNode.Color == NodeColor.Black)
             {
 
-                if(currentNode.Parent.Color != NodeColor.Red)
+                if (currentNode.Parent.Color != NodeColor.Red)
                 {
                     currentNode.Sibiling.Color = NodeColor.Red;
                     currentNode.Parent.Color = NodeColor.DoubleBlack;
@@ -326,7 +313,7 @@ namespace DavidRedBlack
                 }
                 return;
             }
-            
+
             //(c)  If sibling is red, perform a single rotation to move sibling up, recolor old sibling and old parent.
             //      The new sibling is always black. This mainly converts the tree to black sibling case (by rotation) 
             //      and leads to case (a)or(b).
@@ -334,14 +321,14 @@ namespace DavidRedBlack
             {
                 if (currentNode.Sibiling.Parent.RightNode == currentNode)
                 {
-                    currentNode.Parent.Color = NodeColor.Black;
+                    currentNode.Parent.Color = currentNode.Sibiling.Color;
                     currentNode.Sibiling.Color = NodeColor.Black;
 
                     RotateLeft(currentNode.Sibiling);
                 }
                 else
                 {
-                    currentNode.Parent.Color = NodeColor.Black;
+                    currentNode.Parent.Color = currentNode.Sibiling.Color;
                     currentNode.Sibiling.Color = NodeColor.Black;
 
                     RotateRight(currentNode.Sibiling);

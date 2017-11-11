@@ -17,12 +17,17 @@ namespace DavidRedBlack
             Dictionary<string, Action<string>> actionsWithArguements = new Dictionary<string, Action<string>>();
 
             Random rnd = new Random();
+            
 
             actions.Add("test", () =>
             {
-                for (int i = 1; i <= 20; i++)
+                for (int i = 1; i <= 100; i++)
                 {
                     tree.Insert(i);
+                }
+                for (int i = 1; i <= 100; i++)
+                {
+                    tree.Delete(i);
                 }
             });
 
