@@ -143,8 +143,10 @@ namespace DavidRedBlack
                 {
                     nodeToReplace = nodeToReplace.RightNode;
                 }
+                top.Item = nodeToReplace.Item;
                 return ReplaceNode(nodeToReplace);
             }
+            //if the node has no children
             if (nodeToReplace.LeftNode is NullNode<T> && nodeToReplace.RightNode is NullNode<T>)
             {
                 if (nodeToReplace.Parent.RightNode == nodeToReplace)
@@ -158,6 +160,7 @@ namespace DavidRedBlack
                     return nodeToReplace.Parent.LeftNode;
                 }
             }
+            //if the node has one child
             if (nodeToReplace.LeftNode is NullNode<T>)
             {
                 nodeToReplace.RightNode.Parent = nodeToReplace.Parent;
@@ -202,7 +205,7 @@ namespace DavidRedBlack
             TreeNode<T> nodeToDelete = Search(item);
             TreeNode<T> replacementNode = ReplaceNode(nodeToDelete);
 
-            if(replacementNode.Parent == null)
+            if (replacementNode.Parent == null)
             {
                 top = replacementNode;
                 replacementNode.Color = NodeColor.Black;
@@ -218,6 +221,7 @@ namespace DavidRedBlack
                 DeleteFixUp(replacementNode);
             }
             top.Color = NodeColor.Black;
+            findNull(top);
         }
 
         public void DeleteFixUp(TreeNode<T> currentNode)
@@ -253,8 +257,9 @@ namespace DavidRedBlack
                 if (sibilingChild == sibilingChild.Parent.RightNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.LeftNode)
                 {
-                    sibilingChild.Color = NodeColor.Black;
-                    currentNode.Color = NodeColor.Black;
+                    NodeColor temp = sibilingChild.Color;
+                    sibilingChild.Color = currentNode.Color;
+                    currentNode.Color = temp;
                     RotateLeft(sibilingChild.Parent);
                     sibilingChild = sibilingChild.LeftNode;
                 }
@@ -262,8 +267,9 @@ namespace DavidRedBlack
                 else if (sibilingChild == sibilingChild.Parent.LeftNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.RightNode)
                 {
-                    sibilingChild.Color = NodeColor.Black;
-                    currentNode.Color = NodeColor.Black;
+                    NodeColor temp = sibilingChild.Color;
+                    sibilingChild.Color = currentNode.Color;
+                    currentNode.Color = temp;
                     RotateRight(sibilingChild.Parent);
                     sibilingChild = sibilingChild.RightNode;
                 }
@@ -272,8 +278,9 @@ namespace DavidRedBlack
                 if (sibilingChild == sibilingChild.Parent.LeftNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.LeftNode)
                 {
-                    sibilingChild.Color = NodeColor.Black;
-                    currentNode.Color = NodeColor.Black;
+                    NodeColor temp = sibilingChild.Color;
+                    sibilingChild.Color = currentNode.Color;
+                    currentNode.Color = temp;
                     RotateRight(sibilingChild.Grandparent);
                 }
 
@@ -281,8 +288,9 @@ namespace DavidRedBlack
                 else if (sibilingChild == sibilingChild.Parent.RightNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.RightNode)
                 {
-                    sibilingChild.Color = NodeColor.Black;
-                    currentNode.Color = NodeColor.Black;
+                    NodeColor temp = sibilingChild.Color;
+                    sibilingChild.Color = currentNode.Color;
+                    currentNode.Color = temp;
                     RotateLeft(sibilingChild.Grandparent);
                 }
 
@@ -308,8 +316,9 @@ namespace DavidRedBlack
                 }
                 else
                 {
-                    currentNode.Sibiling.Color = NodeColor.Black;
+                    currentNode.Sibiling.Color = NodeColor.Red;
                     currentNode.Parent.Color = NodeColor.Black;
+                    currentNode.Color = NodeColor.Black;
                 }
                 return;
             }
@@ -321,20 +330,66 @@ namespace DavidRedBlack
             {
                 if (currentNode.Sibiling.Parent.RightNode == currentNode)
                 {
+                    NodeColor temp = currentNode.Parent.Color;
                     currentNode.Parent.Color = currentNode.Sibiling.Color;
-                    currentNode.Sibiling.Color = NodeColor.Black;
+                    currentNode.Sibiling.Color = temp;
 
                     RotateLeft(currentNode.Sibiling);
                 }
                 else
                 {
+                    NodeColor temp = currentNode.Parent.Color;
                     currentNode.Parent.Color = currentNode.Sibiling.Color;
-                    currentNode.Sibiling.Color = NodeColor.Black;
+                    currentNode.Sibiling.Color = temp;
 
                     RotateRight(currentNode.Sibiling);
                 }
+                if(currentNode.Sibiling.Color != NodeColor.Black)
+                {
+                    throw new Exception("you screwed up");
+                }
+
                 DeleteFixUp(currentNode);
             }
+        }
+
+        private void findNull(TreeNode<T> currentNode)
+        {
+
+            if(currentNode is TreeNode<T>)
+            {
+                return;
+            }
+            if (currentNode is NullNode<T>)
+            {
+                return;
+            }
+            if (currentNode.LeftNode == null || currentNode.RightNode == null)
+            {
+                Console.WriteLine("NULL NODE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            }
+            if (currentNode.Color == NodeColor.DoubleBlack)
+            {
+                Console.WriteLine("DOUBLE BLACK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            }
+            findNull(currentNode.LeftNode);
+            findNull(currentNode.RightNode);
         }
 
 
@@ -422,7 +477,7 @@ namespace DavidRedBlack
                 return;
             }
             inOrder(currentNode.LeftNode);
-            Console.WriteLine($"{currentNode.Item}, {currentNode.Color.ToString()}");
+            Console.WriteLine(currentNode.Item.ToString() + currentNode.Color.ToString());
             inOrder(currentNode.RightNode);
         }
         #endregion
