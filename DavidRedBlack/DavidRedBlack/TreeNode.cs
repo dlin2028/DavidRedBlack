@@ -91,6 +91,11 @@ namespace DavidRedBlack
         {
             get
             {
+                if (this is NullNode<T>)
+                {
+                    return 0;
+                }
+
                 int temp = 0;
 
                 temp -= LeftNode.Height;

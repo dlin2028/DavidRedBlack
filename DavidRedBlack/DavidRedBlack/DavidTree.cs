@@ -221,7 +221,7 @@ namespace DavidRedBlack
                 DeleteFixUp(replacementNode);
             }
             top.Color = NodeColor.Black;
-            findNull(top);
+            CheckNodes();
         }
 
         public void DeleteFixUp(TreeNode<T> currentNode)
@@ -257,30 +257,19 @@ namespace DavidRedBlack
                 if (sibilingChild == sibilingChild.Parent.RightNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.LeftNode)
                 {
-                    NodeColor temp = sibilingChild.Color;
-                    sibilingChild.Color = currentNode.Color;
-                    currentNode.Color = temp;
                     RotateLeft(sibilingChild.Parent);
-                    sibilingChild = sibilingChild.LeftNode;
                 }
                 //iii.Right - Left Case: If x is a left child and it's parent is a right child, rotate parent right (check step iv)
                 else if (sibilingChild == sibilingChild.Parent.LeftNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.RightNode)
                 {
-                    NodeColor temp = sibilingChild.Color;
-                    sibilingChild.Color = currentNode.Color;
-                    currentNode.Color = temp;
                     RotateRight(sibilingChild.Parent);
-                    sibilingChild = sibilingChild.RightNode;
                 }
 
                 //ii.Left - Left Case: If x is a left child and it's parent is a left child, rotate grandparent right and swap colors of grandparent and parent.
-                if (sibilingChild == sibilingChild.Parent.LeftNode
+                else if (sibilingChild == sibilingChild.Parent.LeftNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.LeftNode)
                 {
-                    NodeColor temp = sibilingChild.Color;
-                    sibilingChild.Color = currentNode.Color;
-                    currentNode.Color = temp;
                     RotateRight(sibilingChild.Grandparent);
                 }
 
@@ -288,11 +277,10 @@ namespace DavidRedBlack
                 else if (sibilingChild == sibilingChild.Parent.RightNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.RightNode)
                 {
-                    NodeColor temp = sibilingChild.Color;
-                    sibilingChild.Color = currentNode.Color;
-                    currentNode.Color = temp;
                     RotateLeft(sibilingChild.Grandparent);
                 }
+                currentNode.Color = NodeColor.Black;
+                sibilingChild.Color = NodeColor.Black;
 
                 #endregion
 
@@ -334,7 +322,7 @@ namespace DavidRedBlack
                     currentNode.Parent.Color = currentNode.Sibiling.Color;
                     currentNode.Sibiling.Color = temp;
 
-                    RotateLeft(currentNode.Sibiling);
+                    RotateRight(currentNode.Parent);
                 }
                 else
                 {
@@ -342,7 +330,7 @@ namespace DavidRedBlack
                     currentNode.Parent.Color = currentNode.Sibiling.Color;
                     currentNode.Sibiling.Color = temp;
 
-                    RotateRight(currentNode.Sibiling);
+                    RotateLeft(currentNode.Parent);
                 }
                 if(currentNode.Sibiling.Color != NodeColor.Black)
                 {
@@ -353,13 +341,25 @@ namespace DavidRedBlack
             }
         }
 
-        private void findNull(TreeNode<T> currentNode)
+        public void CheckNodes()
         {
-
-            if(currentNode is TreeNode<T>)
+            if(Math.Abs(top.Balance) > 3)
             {
-                return;
+                Console.WriteLine("UNBALANCED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
             }
+            checkNodes(top);
+        }
+        public void checkNodes(TreeNode<T> currentNode)
+        {
             if (currentNode is NullNode<T>)
             {
                 return;
@@ -388,8 +388,8 @@ namespace DavidRedBlack
                 Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             }
-            findNull(currentNode.LeftNode);
-            findNull(currentNode.RightNode);
+            checkNodes(currentNode.LeftNode);
+            checkNodes(currentNode.RightNode);
         }
 
 

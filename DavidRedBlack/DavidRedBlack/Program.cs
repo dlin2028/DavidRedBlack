@@ -27,7 +27,7 @@ namespace DavidRedBlack
                 }
                 for (int i = 1; i <= int.Parse(arguement); i++)
                 {
-                    //tree.Delete(i);
+                    tree.Delete(i);
                 }
             });
 
