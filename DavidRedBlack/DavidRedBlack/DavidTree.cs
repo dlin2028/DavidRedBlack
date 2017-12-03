@@ -88,6 +88,10 @@ namespace DavidRedBlack
             if (currentNode == currentNode.Parent.RightNode
                 && currentNode.Parent == currentNode.Grandparent.LeftNode)
             {
+                NodeColor temp = currentNode.Grandparent.Color;
+                currentNode.Grandparent.Color = currentNode.Parent.Color;
+                currentNode.Parent.Color = temp;
+
                 RotateLeft(currentNode.Parent);
                 currentNode = currentNode.LeftNode;
             }
@@ -95,6 +99,10 @@ namespace DavidRedBlack
             else if (currentNode == currentNode.Parent.LeftNode
                 && currentNode.Parent == currentNode.Grandparent.RightNode)
             {
+                NodeColor temp = currentNode.Grandparent.Color;
+                currentNode.Grandparent.Color = currentNode.Parent.Color;
+                currentNode.Parent.Color = temp;
+
                 RotateRight(currentNode.Parent);
                 currentNode = currentNode.RightNode;
             }
@@ -201,7 +209,6 @@ namespace DavidRedBlack
         }
         public void Delete(T item)
         {
-            Console.WriteLine("Deleting " + item.ToString());
             TreeNode<T> nodeToDelete = Search(item);
             TreeNode<T> replacementNode = ReplaceNode(nodeToDelete);
 
@@ -221,7 +228,7 @@ namespace DavidRedBlack
                 DeleteFixUp(replacementNode);
             }
             top.Color = NodeColor.Black;
-            CheckNodes();
+            //CheckNodes();
         }
 
         public void DeleteFixUp(TreeNode<T> currentNode)
@@ -257,19 +264,22 @@ namespace DavidRedBlack
                 if (sibilingChild == sibilingChild.Parent.RightNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.LeftNode)
                 {
-                    RotateLeft(sibilingChild.Parent);
+                    sibilingChild.Sibiling.Color = NodeColor.Black;
+                    RotateRight(sibilingChild.Grandparent);
                 }
                 //iii.Right - Left Case: If x is a left child and it's parent is a right child, rotate parent right (check step iv)
                 else if (sibilingChild == sibilingChild.Parent.LeftNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.RightNode)
                 {
-                    RotateRight(sibilingChild.Parent);
+                    sibilingChild.Sibiling.Color = NodeColor.Black;
+                    RotateLeft(sibilingChild.Grandparent);
                 }
 
                 //ii.Left - Left Case: If x is a left child and it's parent is a left child, rotate grandparent right and swap colors of grandparent and parent.
                 else if (sibilingChild == sibilingChild.Parent.LeftNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.LeftNode)
                 {
+                    sibilingChild.Color = NodeColor.Black;
                     RotateRight(sibilingChild.Grandparent);
                 }
 
@@ -277,11 +287,11 @@ namespace DavidRedBlack
                 else if (sibilingChild == sibilingChild.Parent.RightNode
                     && sibilingChild.Parent == sibilingChild.Grandparent.RightNode)
                 {
+                    sibilingChild.Color = NodeColor.Black;
                     RotateLeft(sibilingChild.Grandparent);
                 }
-                currentNode.Color = NodeColor.Black;
-                sibilingChild.Color = NodeColor.Black;
 
+                currentNode.Color = NodeColor.Black;
                 #endregion
 
                 return;
@@ -341,56 +351,56 @@ namespace DavidRedBlack
             }
         }
 
-        public void CheckNodes()
-        {
-            if(Math.Abs(top.Balance) > 3)
-            {
-                Console.WriteLine("UNBALANCED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //public void CheckNodes()
+        //{
+        //    if(Math.Abs(top.Balance) > 3)
+        //    {
+        //        Console.WriteLine("UNBALANCED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
-            }
-            checkNodes(top);
-        }
-        public void checkNodes(TreeNode<T> currentNode)
-        {
-            if (currentNode is NullNode<T>)
-            {
-                return;
-            }
-            if (currentNode.LeftNode == null || currentNode.RightNode == null)
-            {
-                Console.WriteLine("NULL NODE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            }
-            if (currentNode.Color == NodeColor.DoubleBlack)
-            {
-                Console.WriteLine("DOUBLE BLACK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            }
-            checkNodes(currentNode.LeftNode);
-            checkNodes(currentNode.RightNode);
-        }
+        //    }
+        //    checkNodes(top);
+        //}
+        //public void checkNodes(TreeNode<T> currentNode)
+        //{
+        //    if (currentNode is NullNode<T>)
+        //    {
+        //        return;
+        //    }
+        //    if (currentNode.LeftNode == null || currentNode.RightNode == null)
+        //    {
+        //        Console.WriteLine("NULL NODE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //    }
+        //    if (currentNode.Color == NodeColor.DoubleBlack)
+        //    {
+        //        Console.WriteLine("DOUBLE BLACK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        //    }
+        //    checkNodes(currentNode.LeftNode);
+        //    checkNodes(currentNode.RightNode);
+        //}
 
 
         //rotations, search, and printing

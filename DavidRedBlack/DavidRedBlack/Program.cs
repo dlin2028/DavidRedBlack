@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace DavidRedBlack
 {
@@ -17,10 +18,10 @@ namespace DavidRedBlack
             Dictionary<string, Action<string>> actionsWithArguements = new Dictionary<string, Action<string>>();
 
             Random rnd = new Random();
-
-
+            
             actionsWithArguements.Add("test", (arguement) =>
             {
+                
                 for (int i = 1; i <= int.Parse(arguement); i++)
                 {
                     tree.Insert(i);
@@ -29,6 +30,7 @@ namespace DavidRedBlack
                 {
                     tree.Delete(i);
                 }
+                Console.WriteLine("Done");
             });
 
             actions.Add("lazy", () =>

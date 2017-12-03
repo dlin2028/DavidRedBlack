@@ -66,44 +66,44 @@ namespace DavidRedBlack
             }
         }
 
-        public int Height
-        {
-            get
-            {
-                if (this is NullNode<T>)
-                {
-                    return 0;
-                }
-                else
-                {
-                    if (LeftNode.Height > RightNode.Height)
-                    {
-                        return LeftNode.Height + 1;
-                    }
-                    else
-                    {
-                        return RightNode.Height + 1;
-                    }
-                }
-            }
-        }
-        public int Balance
-        {
-            get
-            {
-                if (this is NullNode<T>)
-                {
-                    return 0;
-                }
+        //public int Height
+        //{
+        //    get
+        //    {
+        //        if (this is NullNode<T>)
+        //        {
+        //            return 0;
+        //        }
+        //        else
+        //        {
+        //            if (LeftNode.Height > RightNode.Height)
+        //            {
+        //                return LeftNode.Height + 1;
+        //            }
+        //            else
+        //            {
+        //                return RightNode.Height + 1;
+        //            }
+        //        }
+        //    }
+        //}
+        //public int Balance
+        //{
+        //    get
+        //    {
+        //        if (this is NullNode<T>)
+        //        {
+        //            return 0;
+        //        }
 
-                int temp = 0;
+        //        int temp = 0;
 
-                temp -= LeftNode.Height;
-                temp += RightNode.Height;
+        //        temp -= LeftNode.Height;
+        //        temp += RightNode.Height;
 
-                return temp;
-            }
-        }
+        //        return temp;
+        //    }
+        //}
         
         public TreeNode() { }
         public TreeNode(T item)
